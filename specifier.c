@@ -6,7 +6,7 @@
  *
  * Return: the number of bytes printed
  */
-int (*get_specifier(char *s)) (va_list ap, params_t *params)
+int (*get_specifier(char *s))(va_list ap, params_t *params)
 {
 	specifier_t specifiers[] = {
 		{"c", print_char},
@@ -20,9 +20,9 @@ int (*get_specifier(char *s)) (va_list ap, params_t *params)
 		{"x", print_hex},
 		{"X", print_HEX},
 		{"p", print_address},
-		{"S" print_S},
+		{"S", print_S},
 		{"r", print_rev},
-		{"R", print rotl3},
+		{"R", print_rot13},
 		{NULL, NULL}
 	};
 	int i = 0;
@@ -31,7 +31,7 @@ int (*get_specifier(char *s)) (va_list ap, params_t *params)
 	{
 		if (*s == specifiers[i].specifier[0])
 		{
-			return (specifiers[il].f);
+			return (specifiers[i].f);
 		}
 		i++;
 	}
@@ -39,7 +39,7 @@ int (*get_specifier(char *s)) (va_list ap, params_t *params)
 }
 
 /**
- * get _print_func - finds the format func
+ * get_print_func - finds the format func
  * @s: the format string
  * @ap: argument pointer
  * @params: the parameters struct
@@ -51,7 +51,7 @@ int get_print_func(char *s, va_list ap, params_t *params)
 	int (*f)(va_list, params_t *) = get_specifier(s);
 
 	if (f)
-		return (s(ap, params));
+		return (f(ap, params));
 	return (0);
 }
 
@@ -64,11 +64,11 @@ int get_print_func(char *s, va_list ap, params_t *params)
  */
 int get_flag(char *s, params_t *params)
 {
+	int i = 0;
+
 	switch (*s)
 	{
 		case '+':
-			i = params->plus_flag = 1;
-			break;
 			i = params->plus_flag = 1;
 			break;
 		case ' ':
@@ -79,8 +79,10 @@ int get_flag(char *s, params_t *params)
 			break;
 		case '-':
 			i = params->minus_flag = 1;
-			i = params->zero_flag = 1;
+			break;
 		case '0':
+			i = params->zero_flag = 1;
+			break;
 	}
 	return (i);
 }
@@ -120,7 +122,7 @@ char *get_width(char *s, params_t *params, va_list ap)
 {
 	int d = 0;
 
-	if (*s == "*")
+	if (*s == '*')
 	{
 		d = va_arg(ap, int);
 		s++;
